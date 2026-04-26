@@ -1,6 +1,6 @@
 {
     "name": "GolfCartBoost",
-    "version_number": "0.1.0",
+    "version_number": "0.1.1",
     "website_url": "https://github.com/Calen-Ray/SBG-Golf-Cart-Boost",
     "description": "Hold the boost button while driving a golf cart for a short speed surge with a cooldown. Reuses the coffee speed-boost effect for the same speed lines and audio.",
     "dependencies": [
