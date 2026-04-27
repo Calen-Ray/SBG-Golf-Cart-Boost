@@ -14,7 +14,7 @@ namespace GolfCartBoost
     {
         public const string ModGuid = "sbg.golfcartboost";
         public const string ModName = "GolfCartBoost";
-        public const string ModVersion = "0.1.0";
+        public const string ModVersion = "0.1.2";
 
         internal static ManualLogSource Log;
         internal static Plugin Instance;
@@ -133,8 +133,15 @@ namespace GolfCartBoost
             Canvas canvas = canvasObj.AddComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             canvas.sortingOrder = 1000;
-            canvasObj.AddComponent<CanvasScaler>().uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            canvasObj.GetComponent<CanvasScaler>().referenceResolution = new Vector2(1920f, 1080f);
+            // ScaleWithScreenSize + matchWidthOrHeight=1 (height) keeps the prompt the same
+            // physical fraction of the screen across ultrawide and 4:3 monitors. v0.1.0/0.1.1
+            // left it at the default (0 = match width), which made the label balloon on wider
+            // aspect ratios — what the user reported as "very large portion of the screen".
+            CanvasScaler scaler = canvasObj.AddComponent<CanvasScaler>();
+            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            scaler.referenceResolution = new Vector2(1920f, 1080f);
+            scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
+            scaler.matchWidthOrHeight = 1f;
             canvasObj.AddComponent<GraphicRaycaster>();
 
             CanvasGroup group = canvasObj.AddComponent<CanvasGroup>();
@@ -148,16 +155,21 @@ namespace GolfCartBoost
             rt.anchorMin = new Vector2(0.5f, 0f);
             rt.anchorMax = new Vector2(0.5f, 0f);
             rt.pivot = new Vector2(0.5f, 0f);
-            rt.anchoredPosition = new Vector2(0f, 220f);
-            rt.sizeDelta = new Vector2(640f, 60f);
+            rt.anchoredPosition = new Vector2(0f, 180f);
+            rt.sizeDelta = new Vector2(420f, 40f);
 
             TextMeshProUGUI label = labelObj.AddComponent<TextMeshProUGUI>();
             label.alignment = TextAlignmentOptions.Center;
-            label.fontSize = 36f;
+            // Auto-size constrains the text to the rect at 14–22 pt regardless of the font
+            // asset's own metric quirks, so the prompt always sits roughly the same height as
+            // the vanilla "Exit / Press X" hint underneath it.
+            label.enableAutoSizing = true;
+            label.fontSizeMin = 14f;
+            label.fontSizeMax = 22f;
             label.fontStyle = FontStyles.Bold;
             label.color = new Color(1f, 0.94f, 0.55f, 1f);
             label.outlineColor = Color.black;
-            label.outlineWidth = 0.2f;
+            label.outlineWidth = 0.15f;
             label.text = string.Empty;
 
             BoostPromptUi ui = canvasObj.AddComponent<BoostPromptUi>();
